@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Setup</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Healthcare Burnout Prevention - Database Setup</h1>
+    
+    <button onclick="checkStatus()">Check Database Status</button>
+    <button onclick="initializeDatabase()">Initialize Database</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function checkStatus() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p class="info">Checking database status...</p>';
+            
+            try {
+                const response = await fetch('/api/setup/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <h3 class="success">Database Status</h3>
+                        <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                    `;
+                } else {
+                    result.innerHTML = `<p class="error">Error: ${data.error.message}</p>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function initializeDatabase() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p class="info">Initializing database...</p>';
+            
+            try {
+                const response = await fetch('/api/setup/database', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <h3 class="success">Database Initialized Successfully!</h3>
+                        <p><strong>Managers:</strong> ${data.data.managers}</p>
+                        <p><strong>Staff:</strong> ${data.data.staff}</p>
+                        <h4>Login Credentials:</h4>
+                        <p><strong>Email:</strong> ${data.data.loginCredentials.email}</p>
+                        <p><strong>Password:</strong> ${data.data.loginCredentials.password}</p>
+                        <p class="success">You can now go back to the application and log in!</p>
+                    `;
+                } else {
+                    result.innerHTML = `<p class="error">Error: ${data.error.message}</p>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
